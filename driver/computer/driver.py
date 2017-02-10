@@ -21,7 +21,7 @@ def xy_convert_horizontal( x, y):
 #def vec_conv
 def main():
     HOST = ''                 # Symbolic name meaning all available interfaces
-    PORT = 9500              # Arbitrary non-privileged port
+    PORT = 9500               # Arbitrary non-privileged port
     li = []
 
     li.extend(range(0, 600))
@@ -30,11 +30,9 @@ def main():
     ser = serial.Serial('/dev/cu.usbmodemFD121',115200);
     #for i in range(10):
     #just to clean buffer and matrix
-    for i in range(10):
+    for i in range(600):
       ser.write(bytearray(li))
       time.sleep(0.5);
-
-
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
