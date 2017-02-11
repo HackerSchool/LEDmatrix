@@ -33,7 +33,6 @@ def main():
     for i in range(600):
       ser.write(bytearray(li))
     time.sleep(0.5);
-
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen(1)
