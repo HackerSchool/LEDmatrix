@@ -32,7 +32,7 @@ def main():
     #just to clean buffer and matrix
     for i in range(10):
       ser.write(bytearray(li))
-      time.sleep(0.5);
+    time.sleep(0.5);
 
 
 
@@ -55,7 +55,6 @@ def main():
                 #    UTF-8
                 if (len(clean_msg)>=600):
                     for i in range(200):
-                        print(i)
                         line = int(i / 10)
                         column = int(i % 10)
                         matrix_index = int(xy_convert_vertical(column, line))
