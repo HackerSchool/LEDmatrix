@@ -25,7 +25,7 @@ def main():
     li = []
     li.extend(range(0, 600))
 
-    for i in range(600):
+    for i in range(10):
       li[i] = 0
     ser = serial.Serial('/dev/cu.usbmodem1421',115200);
     #for i in range(10):
