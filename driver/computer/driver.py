@@ -25,47 +25,47 @@ def main():
     li = []
     li.extend(range(0, 600))
 
-    for i in range(600):
-      li[i] = 0
     ser = serial.Serial('/dev/cu.usbmodem1421',115200);
     #for i in range(10):
     #just to clean buffer and matrix
 
-    ## send 10 clean status just to clean
-    for i in range(10):
-      ser.write(bytearray(li))
-      time.sleep(0.5);
 
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
-        s.listen(1)
+        s.listen(3)
         print("go listen")
-        conn, addr = s.accept()
-        print("accept")
-        with conn:
+        while True:
+            for i in range(600):
+                li[i] = 0
+            for i in range(5):
+                ser.write(bytearray(li))
+                time.sleep(0.5);
+
+            conn, addr = s.accept()
+            print("accept")
             print('Connected by', addr)
             #orientation = conn.recv(1024)
             while True:
-                input_msg = conn.recv(10000)
-                #print(input_msg)
-                clean_msg = input_msg.decode("UTF-8").split("|", 600)
-                #print(clean_msg)
-                #for i in range(600):
-                #    print(clean_msg[i])
-                #    UTF-8
-                if (len(clean_msg)>=600):
-                    for i in range(200):
-                        line = int(i / 10)
-                        column = int(i % 10)
-                        matrix_index = int(xy_convert_vertical(column, line))
-                        li[matrix_index*3] = int(clean_msg[i*3]);
-                        li[matrix_index*3+1] = int(clean_msg[i*3+1]);
-                        li[matrix_index*3+2] = int(clean_msg[i*3+2]);
-
-                    ser.write(bytearray(li))
-
-    ser.close()
+                    input_msg = conn.recv(10000)
+                    if(len(input_msg)==0):
+                        conn.close()
+                        break
+                    clean_msg = input_msg.decode("UTF-8").split("|", 600)
+                    #print(clean_msg)
+                    #for i in range(600):
+                    #    print(clean_msg[i])
+                    #    UTF-8
+                    if (len(clean_msg)>=600):
+                        for i in range(200):
+                            line = int(i / 10)
+                            column = int(i % 10)
+                            matrix_index = int(xy_convert_vertical(column, line))
+                            li[matrix_index*3] = int(clean_msg[i*3]);
+                            li[matrix_index*3+1] = int(clean_msg[i*3+1]);
+                            li[matrix_index*3+2] = int(clean_msg[i*3+2]);
+                        ser.write(bytearray(li))
+        ser.close()
 # this is the standard boilerplate that calls the main() function
 if __name__ == '__main__':
     # sys.exit(main(sys.argv)) # used to give a better look to exists
