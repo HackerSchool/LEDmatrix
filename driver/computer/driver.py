@@ -27,10 +27,12 @@ def main():
 
     for i in range(10):
       li[i] = 0
-    ser = serial.Serial('/dev/cu.usbmodem1421',115200);
+    ser = serial.Serial('/dev/cu.usbmodemFD121',115200);
     #for i in range(10):
     #just to clean buffer and matrix
-    for i in range(3):
+
+    ## send 10 clean status just to clean 
+    for i in range(10):
       ser.write(bytearray(li))
       time.sleep(0.5);
 
