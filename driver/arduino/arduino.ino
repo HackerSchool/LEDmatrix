@@ -11,19 +11,16 @@ int NUM_BYTES =          NUM_LEDS*3;
 
 CRGB leds[MATRIX_HEIGHT*MATRIX_WIDTH];
 
-void setup() {
+void setup(){
     delay(3000); //just a power-up delay
     FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(BRIGHTNESS);
     Serial.begin(115200);
 }
 
-void loop()
-{
+void loop(){
   byte incomingBytes[NUM_BYTES];
-
   if (Serial.available() > 0) { //receive data when available
-
     Serial.readBytes(incomingBytes,NUM_BYTES); //read byte
     FastLED.clear();                           //clear all leds
     for(int i=0; i<200; i++){                  //print to the matrix
@@ -33,4 +30,5 @@ void loop()
     }
     FastLED.show();
   }
+  delay(1);
 }
