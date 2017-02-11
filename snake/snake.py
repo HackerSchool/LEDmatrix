@@ -107,17 +107,18 @@ def main():
         f[1] = random.randint(0, 19)
         v = 0
         game = True
+        changed = 1
         update_screen(s, xs, ys, leng, f)
         pygame.init()
         screen=pygame.display.set_mode((600, 600))
         pygame.display.set_caption('Snake')
         clock = pygame.time.Clock()
         while game:
-            clock.tick(3)
+            clock.tick(3 + leng/4)
             for e in pygame.event.get():
                 if e.type == QUIT:
                     sys.exit(0)
-                elif e.type == KEYDOWN:
+                elif e.type == KEYDOWN and changed == 0:
                     if   e.key == K_UP    and v != 0:
                         v = 2
                     elif e.key == K_DOWN  and v != 2:
@@ -126,13 +127,13 @@ def main():
                         v = 3
                     elif e.key == K_RIGHT and v != 3:
                         v = 1
+                    changed = 1
+            leng = checkEatSnake(xs, ys, leng, f)
+            moveSnake(leng, xs, ys, v)
+            changed = 0
             if(checkCollisionWalls(xs, ys) or checkSelfCollision(ys, xs, leng)):
-                game = False
-            else:
-                leng = checkEatSnake(xs, ys, leng, f)
-                moveSnake(leng, xs, ys, v)
-                update_screen(s, xs, ys, leng, f)
-
+                break
+            update_screen(s, xs, ys, leng, f)
 # this is the standard boilerplate that calls the main() function
 if __name__ == '__main__':
     # sys.exit(main(sys.argv)) # used to give a better look to exists
