@@ -71,6 +71,7 @@ class Tetris:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((HOST, PORT))
         self.new_piece()
+        self.i = 0
 
     def check_collision(self):
         pos_state = self.piece.get_state()
@@ -86,24 +87,26 @@ class Tetris:
     def new_piece(self):
         self.piece = random.choice(piece_types)()
         if(self.check_collision()):
-            pass
-            #game over
+            print("game over")
+            sys.exit()
         self.draw_piece()
         self.update_screen()
 
     def next_tick(self):
-
-
+        self.rigth_key()
+        self.clean_piece()
         self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
+        print(self.piece.pos)
         if(self.check_collision()):
+            # colision let draw piece in before position
+            self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
+            self.draw_piece()
+            # check complete line
             self.new_piece()
         else:
-            self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
-            self.clean_piece()
-            self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
             self.draw_piece()
             self.update_screen()
-            
+
     def draw_piece(self):
         pos_state = self.piece.get_state()
         for i in range(4):
@@ -127,7 +130,38 @@ class Tetris:
                 mensage = mensage + str(self.table[j][i][2]) + "|"
         self.s.sendall(mensage.encode('UTF-8'))
         time.sleep(1)
+        # before must be call by pygame tick
         self.next_tick()
+
+    def left_key(self):
+        if self.piece.pos[0]-1 >= 0:
+            self.clean_piece()
+            self.piece.pos = (self.piece.pos[0]-1,self.piece.pos[1])
+            if(self.check_collision()): # ilegal movement
+                self.piece.pos = (self.piece.pos[0]+1,self.piece.pos[1])
+                self.draw_piece()
+            else:
+                self.draw_piece()
+                self.update_screen()
+
+    def rigth_key(self):
+        if self.piece.pos[0]+1 < 20 :
+            self.clean_piece()
+            self.piece.pos = (self.piece.pos[0]+1,self.piece.pos[1])
+            if(self.check_collision()): # ilegal movement
+                self.piece.pos = (self.piece.pos[0]-1,self.piece.pos[1])
+                self.draw_piece()
+            else:
+                self.draw_piece()
+                #self.update_screen()
+
+    def down_key(self):
+        # increment y until colision
+        pass
+
+    def up_key(self):
+        # rotate and check_collision
+        pass
 
 def main():
 
