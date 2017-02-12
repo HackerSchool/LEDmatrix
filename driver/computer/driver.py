@@ -25,7 +25,7 @@ def main():
     li = []
     li.extend(range(0, 600))
 
-    ser = serial.Serial('/dev/cu.usbmodem1421',115200);
+    ser = serial.Serial('/dev/cu.usbmodem1411',115200);
     #for i in range(10):
     #just to clean buffer and matrix
 
