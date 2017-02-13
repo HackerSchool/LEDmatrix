@@ -12,7 +12,7 @@ class Piece:
         self.pos  = (4,0)
     def rotate(self):
         self.state = (self.state + 1) % len(self.rotations)
-        print(self.state)
+
 
     def inv_rotate(self):
         self.state = (self.state - 1) % len(self.rotations)
@@ -150,7 +150,6 @@ class Tetris:
     def next_tick(self):
         self.clean_piece()
         self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
-        print(self.piece.pos)
         if(self.check_collision()):
             # colision let draw piece in before position
             self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
@@ -209,7 +208,6 @@ class Tetris:
     def down_key(self):
         self.clean_piece()
         self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
-        print(self.piece.pos)
         if(self.check_collision()):
             # colision let draw piece in before position
             self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
