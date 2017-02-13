@@ -15,7 +15,7 @@ void setup(){
     delay(3000); //just a power-up delay
     FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(BRIGHTNESS);
-    Serial.begin(115200);
+    Serial.begin(250000);
 }
 
 void loop(){
@@ -30,5 +30,4 @@ void loop(){
     }
     FastLED.show();
   }
-  delay(1);
 }

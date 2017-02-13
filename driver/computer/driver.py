@@ -4,6 +4,7 @@ import time
 import socket
 import string
 import math
+from datetime import datetime
 
 def xy_convert_vertical(x, y):
 
@@ -25,7 +26,7 @@ def main():
     li = []
     li.extend(range(0, 600))
 
-    ser = serial.Serial('/dev/cu.usbmodem1421',115200);
+    ser = serial.Serial('/dev/cu.usbmodem1411',250000);
     #for i in range(10):
     #just to clean buffer and matrix
 
@@ -46,17 +47,21 @@ def main():
             print("accept")
             print('Connected by', addr)
             #orientation = conn.recv(1024)
+            start = time.time() * 1000
+
             while True:
                     input_msg = conn.recv(10000)
                     if(len(input_msg)==0):
                         conn.close()
                         break
+                    print(len(input_msg))
                     clean_msg = input_msg.decode("UTF-8").split("|", 600)
                     #print(clean_msg)
                     #for i in range(600):
                     #    print(clean_msg[i])
                     #    UTF-8
-                    if (len(clean_msg)>=600):
+
+                    if (len(clean_msg)>=600 and time.time() * 1000 - start > 25): #max frame period is 25ms
                         for i in range(200):
                             line = int(i / 10)
                             column = int(i % 10)
@@ -65,6 +70,7 @@ def main():
                             li[matrix_index*3+1] = int(clean_msg[i*3+1]);
                             li[matrix_index*3+2] = int(clean_msg[i*3+2]);
                         ser.write(bytearray(li))
+                        start = time.time() * 1000
         ser.close()
 # this is the standard boilerplate that calls the main() function
 if __name__ == '__main__':
