@@ -61,7 +61,7 @@ def main():
                     #    print(clean_msg[i])
                     #    UTF-8
 
-                    if (len(clean_msg)>=600 and time.time() * 1000 - start > 25): #max frame period is 25ms
+                    if (len(clean_msg)>=600 and time.time() * 1000 - start > 50): #max frame period is 50ms
                         for i in range(200):
                             line = int(i / 10)
                             column = int(i % 10)

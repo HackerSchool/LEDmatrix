@@ -72,10 +72,14 @@ piece_types = (T, L, J, I, S, Z, O)
 class Tetris:
 
     def __init__(self, HOST, PORT):
-        self.table = [[(0,0,0)]*10 for i in range(20)]
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((HOST, PORT))
+        self.table = [[(0,0,0)]*10 for i in range(20)]
         self.new_piece()
+        self.score = 1
+
+    def get_score(self):
+        return self.score
 
     def check_collision(self):
         pos_state = self.piece.get_state()
@@ -88,9 +92,42 @@ class Tetris:
                 return True
         return False
 
+    def show_lost_message(self):
+        message = ""
+        lose = [[(0,0,0)]*10 for i in range(20)]
+        lose[3][3] = (255, 0, 0)
+        lose[4][3] = (255, 0, 0)
+        lose[5][3] = (255, 0, 0)
+        lose[6][3] = (255, 0, 0)
+        lose[3][6] = (255, 0, 0)
+        lose[4][6] = (255, 0, 0)
+        lose[5][6] = (255, 0, 0)
+        lose[6][6] = (255, 0, 0)
+
+        lose[9][3] = (255, 0, 0)
+        lose[9][4] = (255, 0, 0)
+        lose[9][5] = (255, 0, 0)
+        lose[9][6] = (255, 0, 0)
+        lose[10][2] = (255, 0, 0)
+        lose[10][7] = (255, 0, 0)
+        lose[11][1] = (255, 0, 0)
+        lose[11][8] = (255, 0, 0)
+        lose[12][0] = (255, 0, 0)
+        lose[12][9] = (255, 0, 0)
+
+
+        for j in range(20):
+            for i in range(10):
+                message = message + str(lose[j][i][0]) + "|"
+                message = message + str(lose[j][i][1]) + "|"
+                message = message + str(lose[j][i][2]) + "|"
+        self.s.sendall(message.encode('UTF-8'))
+
     def new_piece(self):
         self.piece = random.choice(piece_types)()
         if(self.check_collision()):
+            self.show_lost_message()
+            time.sleep(5)
             print("game over")
             sys.exit()
         self.draw_piece()
@@ -103,14 +140,12 @@ class Tetris:
                 if self.table[i][j] == (0,0,0):
                     total+=1
                     break
-            if total == 0 :
+            if total == 0:
+                self.score += 1
                 old_table = list(self.table)
                 self.table[0] = [(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0),(0,0,0)]
                 for w in range(0, i):
                     self.table[w+1] = old_table[w]
-
-
-
 
     def next_tick(self):
         self.clean_piece()
@@ -141,13 +176,13 @@ class Tetris:
             self.table[y][x] = (0,0,0)
 
     def update_screen(self):
-        mensage = ""
+        message = ""
         for j in range(20):
             for i in range(10):
-                mensage = mensage + str(self.table[j][i][0]) + "|"
-                mensage = mensage + str(self.table[j][i][1]) + "|"
-                mensage = mensage + str(self.table[j][i][2]) + "|"
-        self.s.sendall(mensage.encode('UTF-8'))
+                message = message + str(self.table[j][i][0]) + "|"
+                message = message + str(self.table[j][i][1]) + "|"
+                message = message + str(self.table[j][i][2]) + "|"
+        self.s.sendall(message.encode('UTF-8'))
 
     def left_key(self):
         if self.piece.pos[0]-1 >= 0:
@@ -191,6 +226,15 @@ class Tetris:
             self.draw_piece()
         else:
             self.draw_piece()
+            self.update_screen()
+
+    def space_key(self):
+        self.clean_piece()
+        while(self.check_collision()!=True):
+            self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
+        self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
+        self.draw_piece()
+        self.update_screen()
 
 def main():
 
@@ -203,7 +247,7 @@ def main():
 
     game = Tetris(HOST, PORT)
     GAMETICK = USEREVENT + 1
-    pygame.time.set_timer(GAMETICK,500)
+    pygame.time.set_timer(GAMETICK, 150 + (400//(game.get_score())))
     while True:
         try:
             for e in pygame.event.get():
@@ -218,6 +262,8 @@ def main():
                         game.left_key()
                     elif e.key == K_RIGHT:
                         game.rigth_key()
+                    elif e.key == K_SPACE:
+                        game.space_key()
                 elif e.type == GAMETICK:
                     game.next_tick()
         except:
