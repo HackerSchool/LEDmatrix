@@ -1,9 +1,9 @@
 import random
-import pygame
-from pygame.locals import *
 import socket
 import sys
 import time
+from queue import Queue
+import threading
 
 class Piece:
 
@@ -71,12 +71,14 @@ piece_types = (T, L, J, I, S, Z, O)
 
 class Tetris:
 
-    def __init__(self, HOST, PORT):
+    def __init__(self, HOST, PORT, input_queue):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((HOST, PORT))
         self.table = [[(0,0,0)]*10 for i in range(20)]
         self.new_piece()
         self.score = 1
+        self.wait_new = False
+        self.input_queue = input_queue
 
     def get_score(self):
         return self.score
@@ -123,13 +125,26 @@ class Tetris:
                 message = message + str(lose[j][i][2]) + "|"
         self.s.sendall(message.encode('UTF-8'))
 
+        self.wait_new = True
+
+    def wait_end_game(self):
+        while True:
+            if not self.input_queue.empty():
+                btn = self.input_queue.get()
+                if btn == 'Start':
+                    break
+            time.sleep(0.1)
+
+        self.wait_new = False
+        self.table = [[(0,0,0)] * 10 for i in range(20)]
+        self.score = 0
+        self.update_screen()
+        return True
+
     def new_piece(self):
         self.piece = random.choice(piece_types)()
         if(self.check_collision()):
             self.show_lost_message()
-            time.sleep(5)
-            print("game over")
-            sys.exit()
         self.draw_piece()
         self.update_screen()
 
@@ -234,41 +249,61 @@ class Tetris:
         self.draw_piece()
         self.update_screen()
 
-def main():
+def hesv1_input_loop(hesv1, queue):
+    while True:
+        act, btn = hesv1.read()
+        if act == 'R':
+            continue
+        queue.put(btn)
 
+
+def main():
     HOST = '127.0.0.1'  # The remote host
     PORT = 9500         # The same port as used by the server
 
-    pygame.init()
-    screen=pygame.display.set_mode((600, 600))
-    pygame.display.set_caption('Tetris')
+    from hesv1 import HESv1
+    try:
+        input_method = HESv1()
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return 1
 
-    game = Tetris(HOST, PORT)
-    GAMETICK = USEREVENT + 1
-    pygame.time.set_timer(GAMETICK, 150 + (400//(game.get_score())))
+    input_loop = hesv1_input_loop
+    input_queue = Queue()
+
+    input_thread = threading.Thread(target=input_loop,
+                                    args=(input_method, input_queue))
+    input_thread.daemon = True
+    input_thread.start()
+
+    now = time.perf_counter
+    last_drop = now()
+
+    game = Tetris(HOST, PORT, input_queue)
     while True:
-        try:
-            for e in pygame.event.get():
-                if e.type == QUIT:
-                    sys.exit(0)
-                elif e.type == KEYDOWN:
-                    if   e.key == K_UP:
-                        game.up_key()
-                    elif e.key == K_DOWN:
-                        game.down_key()
-                    elif e.key == K_LEFT:
-                        game.left_key()
-                    elif e.key == K_RIGHT:
-                        game.rigth_key()
-                    elif e.key == K_SPACE:
-                        game.space_key()
-                elif e.type == GAMETICK:
-                    game.next_tick()
-        except:
-            sys.exit()
-            pass
+        if game.wait_new and game.wait_end_game():
+            continue
 
+        if not input_queue.empty():
+            btn = input_queue.get()
 
+            if btn == 'Up':
+                game.up_key()
+            elif btn == 'Down':
+                game.down_key()
+            elif btn == 'Left':
+                game.left_key()
+            elif btn == 'Right':
+                game.rigth_key()
+            elif btn == 'A':
+                game.space_key()
+
+        elif now() - last_drop < 0.8:
+            continue
+
+        time.sleep(0.1)
+        game.next_tick()
+        last_drop = now()
 
 
 if __name__ == '__main__':

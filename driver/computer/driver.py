@@ -26,7 +26,7 @@ def main():
     li = []
     li.extend(range(0, 600))
 
-    ser = serial.Serial('/dev/cu.usbmodem1411',250000);
+    ser = serial.Serial('/dev/ttyUSB0',250000);
     #for i in range(10):
     #just to clean buffer and matrix
 
@@ -35,7 +35,6 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen(3)
-        print("go listen")
         while True:
             for i in range(600):
                 li[i] = 0
@@ -44,8 +43,6 @@ def main():
                 time.sleep(0.5);
 
             conn, addr = s.accept()
-            print("accept")
-            print('Connected by', addr)
             #orientation = conn.recv(1024)
             start = time.time() * 1000
 
@@ -54,7 +51,6 @@ def main():
                     if(len(input_msg)==0):
                         conn.close()
                         break
-                    print(len(input_msg))
                     clean_msg = input_msg.decode("UTF-8").split("|", 600)
                     #print(clean_msg)
                     #for i in range(600):
