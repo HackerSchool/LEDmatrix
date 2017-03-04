@@ -28,24 +28,24 @@ class Menu:
 
     def draw_menu(self):
         for i, color in enumerate(self.app_colors):
-            self.screen[2*i + 2][1] = color
-            self.screen[2*i + 2][2] = color
+            self.screen[2*i + 2][8] = color
+            self.screen[2*i + 2][7] = color
 
-        self.screen[2*self.app + 2][8] = WHITE
+        self.screen[2*self.app + 2][1] = WHITE
         self.update_screen()
 
     def update_menu(self):
-        self.screen[2*self.app + 2][8] = BLACK
-        self.screen[2*self.new_app + 2][8] = WHITE
+        self.screen[2*self.app + 2][1] = BLACK
+        self.screen[2*self.new_app + 2][1] = WHITE
         self.app = self.new_app
         self.update_screen()
 
-    def down_key(self):
+    def up_key(self):
         if self.app >= 1:
             self.new_app = self.app - 1
             self.update_menu()
 
-    def up_key(self):
+    def down_key(self):
         if self.app < len(self.app_list) - 1:
             self.new_app = self.app + 1
             self.update_menu()

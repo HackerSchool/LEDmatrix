@@ -94,10 +94,10 @@ class Snake():
                     break
 
                 if self.changed == 0:
-                    if btn == 'Up' and self.v != 2:
-                        self.v = 0
-                    elif btn == 'Down' and self.v != 0:
+                    if btn == 'Up' and self.v != 0:
                         self.v = 2
+                    elif btn == 'Down' and self.v != 2:
+                        self.v = 0
                     elif btn == 'Left' and self.v != 3:
                         self.v = 1
                     elif btn == 'Right' and self.v != 1:

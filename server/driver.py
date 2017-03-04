@@ -1,9 +1,26 @@
 import sys
 import os
 import serial
+from serial.tools.list_ports import comports
 import time
 import socket
 from const import *
+
+# TODO
+def find_matrix():
+    for portinfo in comports():
+        dev = serial.Serial(portinfo.device, BAUD, timeout=4)
+        print(dev)
+        time.sleep(2)
+
+        print(dev.write(CHALL))
+        reply = dev.read(len(REPLY))
+        print(reply)
+        if reply == REPLY:
+            dev.timeout = None
+            return dev
+
+    return None
 
 def xy_convert_vertical(x, y):
     if y % 2 != 0:
@@ -12,7 +29,13 @@ def xy_convert_vertical(x, y):
         return (y*10 + 9 - x)
 
 def main():
+    #matrix = find_matrix()
     matrix = serial.Serial(PATH, BAUD)
+
+    if not matrix:
+        print('Error: matrix not found.', file=sys.stderr)
+        return 1
+
     time.sleep(5)
 
     try:
@@ -32,7 +55,6 @@ def main():
             msg = conn.recv(NUM_BYTES)
 
             if len(msg) < NUM_BYTES:
-                print('[+] client is dumb; closed connection.')
                 conn.close()
                 break
 
@@ -43,14 +65,12 @@ def main():
                     line = int(i / 10)
                     column = int(i % 10)
                     matrix_index = xy_convert_vertical(column, line)
-                    leds[matrix_index*3] = msg[i*3]
-                    leds[matrix_index*3+1] = msg[i*3+1]
-                    leds[matrix_index*3+2] = msg[i*3+2]
+                    leds[(199 - matrix_index)*3] = msg[i*3]
+                    leds[(199 - matrix_index)*3+1] = msg[i*3+1]
+                    leds[(199 - matrix_index)*3+2] = msg[i*3+2]
 
                 matrix.write(leds)
                 last = time.perf_counter()
-            else:
-                print(f'[{time.time()}] dropped frame, diff = {diff} < {MIN_PERIOD}')
 
     matrix.close()
 

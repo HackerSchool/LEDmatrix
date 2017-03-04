@@ -7,9 +7,9 @@ BLACK = (0, 0, 0)
 RED = (0xff, 0, 0)
 
 def main():
-    #matrix = serial.Serial(PATH, BAUD)
-    matrix = socket.socket(socket.AF_UNIX)
-    matrix.connect(SOCK_PATH)
+    matrix = serial.Serial(PATH, BAUD)
+    #matrix = socket.socket(socket.AF_UNIX)
+    #matrix.connect(SOCK_PATH)
 
     time.sleep(5)
     leds = [[BLACK]*WIDTH for _ in range(HEIGHT)]
@@ -24,7 +24,8 @@ def main():
                             b += bytes(RED)
                         else:
                             b += bytes(BLACK)
-                matrix.sendall(b)
+                #matrix.sendall(b)
+                matrix.write(b)
                 time.sleep(0.1)
 
 
