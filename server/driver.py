@@ -45,7 +45,7 @@ def main():
 
     s = socket.socket(socket.AF_UNIX)
     s.bind(SOCK_PATH)
-    s.listen()
+    s.listen(0)
     leds = bytearray(NUM_BYTES)
     while True:
         last = time.perf_counter()

@@ -14,7 +14,7 @@ CRGB leds[MATRIX_HEIGHT*MATRIX_WIDTH];
 
 void setup() {
 	delay(3000); //just a power-up delay
-	FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+	FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 	FastLED.setBrightness(BRIGHTNESS);
 	Serial.begin(BAUD);
 }

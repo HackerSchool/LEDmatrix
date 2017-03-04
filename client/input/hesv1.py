@@ -4,19 +4,28 @@ import time
 import sys
 
 BAUD = 9600
+PATH = '/dev/ttyUSB1'
 CHALL = b"Hi. Who are you?"
 RESP = b"Hi. I'm HES."
 
 class Hesv1:
     def __init__(self):
         self.bindings = ['Select', 'Start', 'Up', 'Down', 'Left', 'Right', 'A', 'B']
-        self.hesv1 = self.find_hesv1()
+        while True:
+            try:
+                self.hesv1 = self.find_hesv1()
+                break
+            except:
+                pass
+            finally:
+                time.sleep(0.1)
 
         if not self.hesv1:
             raise Exception('HESv1 Error: HESv1 device not found.')
 
     def find_hesv1(self):
-        dev = Serial('/dev/ttyUSB1', BAUD)
+        dev = Serial(PATH, BAUD)
+        print(dev)
         time.sleep(2)
 
         dev.write(CHALL)
