@@ -2,30 +2,28 @@ import random
 import socket
 import sys
 import time
-from queue import Queue
 import threading
+from queue import Queue
+
+from client.const import *
+
+DROP_PERIOD = 0.8
 
 class Piece:
-
     def __init__(self):
         self.state = random.randint(0, len(self.rotations)-1)
         self.pos  = (4,0)
+
     def rotate(self):
         self.state = (self.state + 1) % len(self.rotations)
 
-
     def inv_rotate(self):
         self.state = (self.state - 1) % len(self.rotations)
-        if(self.state == -1):
+        if self.state == -1:
             self.state = len(self.rotations) - 1
 
     def get_state(self):
         return self.rotations[self.state]
-
-    @classmethod
-    def get_color(cls):
-        return cls.color
-
 
 class T(Piece):
     color = (255,0,0)
@@ -67,21 +65,20 @@ class O(Piece):
     color = (0,255,255)
     rotations =[[(0,0), (1,0), (0,1), (1,1)]]
 
-piece_types = (T, L, J, I, S, Z, O)
+PIECE_TYPES = (T, L, J, I, S, Z, O)
 
 class Tetris:
-
-    def __init__(self, HOST, PORT, input_queue):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((HOST, PORT))
-        self.table = [[(0,0,0)]*10 for i in range(20)]
-        self.new_piece()
-        self.score = 1
-        self.wait_new = False
+    def __init__(self, matrix, input_queue):
+        self.s = matrix
         self.input_queue = input_queue
+        self.wait_new = False
+        self.clear()
+        self.loop()
 
-    def get_score(self):
-        return self.score
+    def clear(self):
+        self.table = [[(0,0,0)] * WIDTH for i in range(HEIGHT)]
+        self.score = 0
+        self.update_screen()
 
     def check_collision(self):
         pos_state = self.piece.get_state()
@@ -94,64 +91,19 @@ class Tetris:
                 return True
         return False
 
-    def show_lost_message(self):
-        message = ""
-        lose = [[(0,0,0)]*10 for i in range(20)]
-        lose[3][3] = (255, 0, 0)
-        lose[4][3] = (255, 0, 0)
-        lose[5][3] = (255, 0, 0)
-        lose[6][3] = (255, 0, 0)
-        lose[3][6] = (255, 0, 0)
-        lose[4][6] = (255, 0, 0)
-        lose[5][6] = (255, 0, 0)
-        lose[6][6] = (255, 0, 0)
-
-        lose[9][3] = (255, 0, 0)
-        lose[9][4] = (255, 0, 0)
-        lose[9][5] = (255, 0, 0)
-        lose[9][6] = (255, 0, 0)
-        lose[10][2] = (255, 0, 0)
-        lose[10][7] = (255, 0, 0)
-        lose[11][1] = (255, 0, 0)
-        lose[11][8] = (255, 0, 0)
-        lose[12][0] = (255, 0, 0)
-        lose[12][9] = (255, 0, 0)
-
-
-        for j in range(20):
-            for i in range(10):
-                message = message + str(lose[j][i][0]) + "|"
-                message = message + str(lose[j][i][1]) + "|"
-                message = message + str(lose[j][i][2]) + "|"
-        self.s.sendall(message.encode('UTF-8'))
-
-        self.wait_new = True
-
-    def wait_end_game(self):
-        while True:
-            if not self.input_queue.empty():
-                btn = self.input_queue.get()
-                if btn == 'Start':
-                    break
-            time.sleep(0.1)
-
-        self.wait_new = False
-        self.table = [[(0,0,0)] * 10 for i in range(20)]
-        self.score = 0
-        self.update_screen()
-        return True
-
     def new_piece(self):
-        self.piece = random.choice(piece_types)()
-        if(self.check_collision()):
-            self.show_lost_message()
+        self.piece = random.choice(PIECE_TYPES)()
+        if self.check_collision():
+            self.game_over()
+            return
+
         self.draw_piece()
         self.update_screen()
 
     def check_lines(self):
-        for i in range(20):
+        for i in range(HEIGHT):
             total = 0
-            for j in range(10):
+            for j in range(WIDTH):
                 if self.table[i][j] == (0,0,0):
                     total+=1
                     break
@@ -165,7 +117,7 @@ class Tetris:
     def next_tick(self):
         self.clean_piece()
         self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
-        if(self.check_collision()):
+        if self.check_collision():
             # colision let draw piece in before position
             self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
             self.draw_piece()
@@ -180,7 +132,7 @@ class Tetris:
         for i in range(4):
             x  = self.piece.pos[0] + pos_state[i][0]
             y =  self.piece.pos[1] + pos_state[i][1]
-            self.table[y][x] = self.piece.get_color()
+            self.table[y][x] = self.piece.color
 
     def clean_piece(self):
         pos_state = self.piece.get_state()
@@ -190,13 +142,12 @@ class Tetris:
             self.table[y][x] = (0,0,0)
 
     def update_screen(self):
-        message = ""
-        for j in range(20):
-            for i in range(10):
-                message = message + str(self.table[j][i][0]) + "|"
-                message = message + str(self.table[j][i][1]) + "|"
-                message = message + str(self.table[j][i][2]) + "|"
-        self.s.sendall(message.encode('UTF-8'))
+        screen = b''
+        for i in range(HEIGHT):
+            for j in range(WIDTH):
+                screen += bytes(self.table[i][j])
+
+        self.s.sendall(screen)
 
     def left_key(self):
         if self.piece.pos[0]-1 >= 0:
@@ -209,7 +160,7 @@ class Tetris:
                 self.draw_piece()
                 self.update_screen()
 
-    def rigth_key(self):
+    def right_key(self):
         if self.piece.pos[0]+1 < 20 :
             self.clean_piece()
             self.piece.pos = (self.piece.pos[0]+1,self.piece.pos[1])
@@ -241,71 +192,118 @@ class Tetris:
             self.draw_piece()
             self.update_screen()
 
-    def space_key(self):
+    def start_key(self):
+        saved = []
+        for i in range(WIDTH):
+            saved.append(self.table[10][i])
+            self.table[10][i] = (0xFF, 0x8A, 0x00)
+        self.update_screen()
+
+        while True:
+            if not self.input_queue.empty():
+                btn = self.input_queue.get()
+                if btn == 'Start':
+                    break
+            time.sleep(0.1)
+
+        for i in range(WIDTH):
+            self.table[10][i] = saved[i]
+        self.update_screen()
+
+
+    def a_key(self):
         self.clean_piece()
-        while(self.check_collision()!=True):
+        while not self.check_collision():
             self.piece.pos = (self.piece.pos[0],self.piece.pos[1]+1)
         self.piece.pos = (self.piece.pos[0],self.piece.pos[1]-1)
         self.draw_piece()
         self.update_screen()
 
-def hesv1_input_loop(hesv1, queue):
-    while True:
-        act, btn = hesv1.read()
-        if act == 'R':
-            continue
-        queue.put(btn)
+    def game_over(self):
+        for i in range(20):
+            for j in range(10):
+                self.table[i][j] = (0, 0, 0)
+
+        self.table[3][3] = (255, 0, 0)
+        self.table[4][3] = (255, 0, 0)
+        self.table[5][3] = (255, 0, 0)
+        self.table[6][3] = (255, 0, 0)
+        self.table[3][6] = (255, 0, 0)
+        self.table[4][6] = (255, 0, 0)
+        self.table[5][6] = (255, 0, 0)
+        self.table[6][6] = (255, 0, 0)
+
+        self.table[9][3] = (255, 0, 0)
+        self.table[9][4] = (255, 0, 0)
+        self.table[9][5] = (255, 0, 0)
+        self.table[9][6] = (255, 0, 0)
+        self.table[10][2] = (255, 0, 0)
+        self.table[10][7] = (255, 0, 0)
+        self.table[11][1] = (255, 0, 0)
+        self.table[11][8] = (255, 0, 0)
+        self.table[12][0] = (255, 0, 0)
+        self.table[12][9] = (255, 0, 0)
 
 
-def main():
-    HOST = '127.0.0.1'  # The remote host
-    PORT = 9500         # The same port as used by the server
+        inv_mask = '{:010b}'.format(self.score)
+        for i, bit in enumerate(inv_mask):
+            if bit == '1':
+                self.table[19][i] = (0x00, 0xFF, 0x00)
+        self.update_screen()
+        self.wait_new = True
 
-    from hesv1 import HESv1
-    try:
-        input_method = HESv1()
-    except Exception as e:
-        print(e, file=sys.stderr)
-        return 1
+    def wait_end_game(self):
+        quit = False
 
-    input_loop = hesv1_input_loop
-    input_queue = Queue()
+        while True:
+            if not self.input_queue.empty():
+                btn = self.input_queue.get()
+                if btn == 'Start':
+                    break
+                if btn == 'Select':
+                    quit = True
+                    break
+            time.sleep(0.1)
+        self.wait_new = False
+        self.clear()
 
-    input_thread = threading.Thread(target=input_loop,
-                                    args=(input_method, input_queue))
-    input_thread.daemon = True
-    input_thread.start()
+        return quit
 
-    now = time.perf_counter
-    last_drop = now()
 
-    game = Tetris(HOST, PORT, input_queue)
-    while True:
-        if game.wait_new and game.wait_end_game():
-            continue
-
-        if not input_queue.empty():
-            btn = input_queue.get()
-
-            if btn == 'Up':
-                game.up_key()
-            elif btn == 'Down':
-                game.down_key()
-            elif btn == 'Left':
-                game.left_key()
-            elif btn == 'Right':
-                game.rigth_key()
-            elif btn == 'A':
-                game.space_key()
-
-        elif now() - last_drop < 0.8:
-            continue
-
-        time.sleep(0.1)
-        game.next_tick()
+    def loop(self):
+        self.new_piece()
+        now = time.perf_counter
         last_drop = now()
 
+        while True:
+            if self.wait_new:
+                if self.wait_end_game():
+                    break
 
-if __name__ == '__main__':
-    # sys.exit(main(sys.argv)) # used to give a better look to exists
-    main()
+            if not self.input_queue.empty():
+                btn = self.input_queue.get()
+
+                if btn == 'Up':
+                    self.up_key()
+                elif btn == 'Down':
+                    self.down_key()
+                elif btn == 'Left':
+                    self.left_key()
+                elif btn == 'Right':
+                    self.right_key()
+                elif btn == 'A':
+                    self.a_key()
+                elif btn == 'Start':
+                    self.start_key()
+                elif btn == 'Select':
+                    self.clear()
+                    break
+
+            else:
+                if now() - last_drop < DROP_PERIOD:
+                    time.sleep(30e-3)
+                    continue
+
+            time.sleep(MIN_PERIOD)
+            self.next_tick()
+            last_drop = now()

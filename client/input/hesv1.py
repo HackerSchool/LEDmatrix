@@ -7,7 +7,7 @@ BAUD = 9600
 CHALL = b"Hi. Who are you?"
 RESP = b"Hi. I'm HES."
 
-class HESv1:
+class Hesv1:
     def __init__(self):
         self.bindings = ['Select', 'Start', 'Up', 'Down', 'Left', 'Right', 'A', 'B']
         self.hesv1 = self.find_hesv1()
@@ -32,3 +32,10 @@ class HESv1:
         d = self.hesv1.readline().rstrip().decode()
         if d:
             return d[0], self.bindings[int(d[1])]
+
+    def loop(self, input_queue):
+        while True:
+            act, btn = self.read()
+            if act == 'R':
+                continue
+            input_queue.put(btn)
