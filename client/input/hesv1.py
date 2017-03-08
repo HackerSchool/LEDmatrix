@@ -25,7 +25,6 @@ class Hesv1:
 
     def find_hesv1(self):
         dev = Serial(PATH, BAUD)
-        print(dev)
         time.sleep(2)
 
         dev.write(CHALL)

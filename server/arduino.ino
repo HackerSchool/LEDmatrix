@@ -3,7 +3,7 @@
 #define LED_PIN			5
 #define MATRIX_WIDTH	10
 #define MATRIX_HEIGHT	20
-#define BRIGHTNESS		255
+#define BRIGHTNESS		128
 #define LED_TYPE		WS2811
 #define COLOR_ORDER		GRB
 #define BAUD			115200

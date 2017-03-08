@@ -98,10 +98,10 @@ class Snake():
                         self.v = 2
                     elif btn == 'Down' and self.v != 2:
                         self.v = 0
-                    elif btn == 'Left' and self.v != 3:
-                        self.v = 1
-                    elif btn == 'Right' and self.v != 1:
+                    elif btn == 'Left' and self.v != 1:
                         self.v = 3
+                    elif btn == 'Right' and self.v != 3:
+                        self.v = 1
                     self.changed = 1
 
             self.checkEatSnake()

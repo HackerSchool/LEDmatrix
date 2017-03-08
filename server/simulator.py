@@ -63,7 +63,7 @@ while True:
             r = p*3
             pygame.draw.rect(screen,
                              (leds[r], leds[r+1], leds[r+2]),  # pixel colors
-                             ((p % 10) * SCALE,   # pixel x location
+                             ((9 - p % 10) * SCALE,   # pixel x location
                               (p // 10) * SCALE,  # pixel y location
                               SCALE,            # pixel height
                               SCALE))           # pixel width

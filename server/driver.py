@@ -20,7 +20,7 @@ def find_matrix():
             dev.timeout = None
             return dev
 
-    return None
+    print('Error: matrix not found.', file=sys.stderr)
 
 def xy_convert_vertical(x, y):
     if y % 2 != 0:
@@ -31,11 +31,6 @@ def xy_convert_vertical(x, y):
 def main():
     #matrix = find_matrix()
     matrix = serial.Serial(PATH, BAUD)
-
-    if not matrix:
-        print('Error: matrix not found.', file=sys.stderr)
-        return 1
-
     time.sleep(5)
 
     try:
@@ -58,16 +53,16 @@ def main():
                 conn.close()
                 break
 
-            # can't risk corrupting the matrix, last ditch effort
+            # can't risk corrupting the matrix by writing too fast
             diff = time.perf_counter() - last
             if diff >= MIN_PERIOD:
                 for i in range(NUM_LEDS):
                     line = int(i / 10)
                     column = int(i % 10)
                     matrix_index = xy_convert_vertical(column, line)
-                    leds[(199 - matrix_index)*3] = msg[i*3]
-                    leds[(199 - matrix_index)*3+1] = msg[i*3+1]
-                    leds[(199 - matrix_index)*3+2] = msg[i*3+2]
+                    leds[matrix_index*3] = msg[i*3]
+                    leds[matrix_index*3+1] = msg[i*3+1]
+                    leds[matrix_index*3+2] = msg[i*3+2]
 
                 matrix.write(leds)
                 last = time.perf_counter()

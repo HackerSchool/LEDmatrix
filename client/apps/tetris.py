@@ -149,7 +149,7 @@ class Tetris:
 
         self.s.sendall(screen)
 
-    def right_key(self):
+    def left_key(self):
         if self.piece.pos[0]-1 >= 0:
             self.clean_piece()
             self.piece.pos = (self.piece.pos[0]-1,self.piece.pos[1])
@@ -160,7 +160,7 @@ class Tetris:
                 self.draw_piece()
                 self.update_screen()
 
-    def left_key(self):
+    def right_key(self):
         if self.piece.pos[0]+1 < 20 :
             self.clean_piece()
             self.piece.pos = (self.piece.pos[0]+1,self.piece.pos[1])
