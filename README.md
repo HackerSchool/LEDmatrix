@@ -30,3 +30,10 @@ For arduino:
 ...
 ]
 ```
+
+### Running the simulator
+
+1.  - On Windows, get python 3 from [here]( https://www.python.org/downloads/) and **mark the option to add python 3 to PATH, on the installer**.
+    - On GNU/Linux, run `sudo apt install python3 python3-pip`.
+2. For either system, after installing python run `sudo pip3 install pygame` and then run `python3 simulator.py`from the folder containing the simulator script.
+3. run `python3 simulator.py <socket port>`, connect your program to the chosen port and go!
