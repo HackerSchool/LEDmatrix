@@ -37,3 +37,6 @@ For arduino:
     - On GNU/Linux, run `sudo apt install python3 python3-pip`.
 2. For either system, after installing python run `sudo pip3 install pygame`.
 3. Run `python3 simulator.py <socket port>` from the "server" folder, connect your program to the chosen port and go!
+
+### TODO:
+ * replace UDS by named pipe
