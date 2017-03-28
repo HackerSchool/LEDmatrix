@@ -33,14 +33,10 @@ def main():
     matrix = serial.Serial(PATH, BAUD)
     time.sleep(5)
 
-    try:
-        os.unlink(SOCK_PATH)
-    except:
-        pass
+    s = socket.socket()
+    s.bind(('localhost', PORT))
+    s.listen(3)
 
-    s = socket.socket(socket.AF_UNIX)
-    s.bind(SOCK_PATH)
-    s.listen(0)
     leds = bytearray(NUM_BYTES)
     while True:
         last = time.perf_counter()

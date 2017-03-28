@@ -11,4 +11,4 @@ REPLY = "The Matrix."
 # Writing to the matrix with period > MIN_PERIOD results in corruption.
 MIN_PERIOD = 35e-3
 
-SOCK_PATH = '/tmp/ledmatrix'
+PORT = 53777

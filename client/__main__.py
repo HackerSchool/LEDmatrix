@@ -24,8 +24,8 @@ def main(app, input_module):
     input_thread.daemon = True
     input_thread.start()
 
-    matrix = socket.socket(socket.AF_UNIX)
-    matrix.connect(SOCK_PATH)
+    matrix = socket.socket()
+    matrix.connect(('localhost', PORT))
 
     exec('from client.apps.{0} import {1} as App'.format(app,
             app.capitalize()), globals())

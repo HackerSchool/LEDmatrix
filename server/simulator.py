@@ -15,20 +15,15 @@ from const import *
 SCALE = 32  # Scaling factor so it doesn't actually take only 20x10 pixels on the screen
 FPS = 30
 
-def network_thread(SOCK_PATH, queue):
-    try:
-        os.unlink(SOCK_PATH)
-    except:
-        pass
-
-    s = socket.socket(socket.AF_UNIX)
-    s.bind(SOCK_PATH)
-    s.listen()
+def network_thread(queue):
+    s = socket.socket()
+    s.bind(('localhost', PORT))
+    s.listen(3)
 
     while True:
         conn, addr = s.accept()
         while True:
-            leds = conn.recv(NUM_BYTES, socket.MSG_WAITALL)
+            leds = conn.recv(NUM_BYTES)
 
             if len(leds) != NUM_BYTES:
                 conn.close()
@@ -45,7 +40,7 @@ pygame.display.set_caption("LED Matrix simulation")
 clock = pygame.time.Clock()
 
 q = Queue()
-thread = threading.Thread(target=network_thread, args=(SOCK_PATH, q))
+thread = threading.Thread(target=network_thread, args=(q,))
 thread.daemon = True  # if the main thread exits the program won't keep running
 thread.start()
 
