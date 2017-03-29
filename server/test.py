@@ -10,8 +10,8 @@ RED = (0xff, 0, 0)
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == 'socket':
         setattr(socket.socket, 'write', socket.socket.sendall)
-        matrix = socket.socket(socket.AF_UNIX)
-        matrix.connect(SOCK_PATH)
+        matrix = socket.socket()
+        matrix.connect(('localhost', PORT))
     else:
         matrix = serial.Serial(PATH, BAUD)
         time.sleep(5)

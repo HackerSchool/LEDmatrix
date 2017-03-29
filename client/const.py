@@ -5,7 +5,7 @@ HEIGHT = 20
 NUM_LEDS = WIDTH * HEIGHT
 NUM_BYTES = NUM_LEDS * 3
 
-SOCK_PATH = '/tmp/ledmatrix'
+PORT = 53777
 
 BLACK = (0, 0, 0)
 WHITE = (0xff, 0xff, 0xff)
