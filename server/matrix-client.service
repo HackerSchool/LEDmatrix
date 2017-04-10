@@ -1,0 +1,9 @@
+[Unit]
+Description=LED matrix client
+
+[Service]
+WorkingDirectory=/root/LEDmatrix
+ExecStart=/usr/bin/python3 -m client
+
+[Install]
+WantedBy=default.target
