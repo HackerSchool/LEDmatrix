@@ -14,6 +14,7 @@ from const import *
 
 SCALE = 32  # Scaling factor so it doesn't actually take only 20x10 pixels on the screen
 FPS = 30
+VERTICAL = True  # False rotates left to horizontal. VISUAL ONLY, COORDINATES DON'T CHANGE!
 
 def network_thread(queue):
     s = socket.socket()
@@ -33,8 +34,8 @@ def network_thread(queue):
 
 
 pygame.init()
-screen = pygame.display.set_mode((WIDTH * SCALE,
-                                  HEIGHT * SCALE))
+screen = pygame.display.set_mode((WIDTH * SCALE if VERTICAL else HEIGHT * SCALE,
+                                  HEIGHT * SCALE if VERTICAL else WIDTH * SCALE))
 pygame.display.set_caption("LED Matrix simulation")
 
 clock = pygame.time.Clock()
@@ -58,8 +59,8 @@ while True:
             r = p*3
             pygame.draw.rect(screen,
                              (leds[r], leds[r+1], leds[r+2]),  # pixel colors
-                             ((p % 10) * SCALE,   # pixel x location
-                              (p // 10) * SCALE,  # pixel y location
+                             ((p % WIDTH) * SCALE if VERTICAL else (p // WIDTH) * SCALE,  # pixel x (width) location
+                              (p // WIDTH) * SCALE if VERTICAL else (WIDTH - (p % WIDTH) - 1) * SCALE,  # pixel y (height) location
                               SCALE,            # pixel height
                               SCALE))           # pixel width
 
