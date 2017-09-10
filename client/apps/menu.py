@@ -11,8 +11,8 @@ class Menu:
         self.input_queue = input_queue
 
         self.screen = [[(0,0,0)] * WIDTH for i in range(HEIGHT)]
-        self.app_list = ['tetris', 'snake', 'rainbow']
-        self.app_colors = [RED, GREEN, BLUE]
+        self.app_list = ['tetris', 'snake', 'rainbow','bemvindo']
+        self.app_colors = [RED, GREEN, BLUE,WHITE]
         self.app = 0
         self.new_app = 0
 
