@@ -13,7 +13,7 @@ class ImageDisplay:
         self.input_queue = input_queue  # useless?
 
         self.table = [[(0, 0, 0)] * WIDTH for _ in range(HEIGHT)]
-        
+
         self.clear()
 
     def clear(self, color=(0, 0, 0)):
@@ -24,7 +24,7 @@ class ImageDisplay:
         for i in range(HEIGHT):
             for j in range(WIDTH):
                 frame += bytes(self.table[i][j])
-        
+
         self.s.sendall(frame)
 
     def load_image(self, img, background_color=(0, 0, 0), rotate=None):
