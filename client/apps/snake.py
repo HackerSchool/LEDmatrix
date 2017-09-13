@@ -12,6 +12,9 @@ class Snake():
         self.input_queue = input_queue
         self.snake_color = RED
         self.food_color = GREEN
+        self.pause_color = BLUE
+        self.pausexs = [4, 4, 4, 4, 6, 6, 6, 6] # Draw the pause symbol like ||
+        self.pauseys = [8, 9, 10, 11, 8, 9, 10, 11]
         self.reset()
         self.loop()
 
@@ -25,7 +28,8 @@ class Snake():
         self.f[0] = random.randint(0, 9)
         self.f[1] = random.randint(0, 19)
         self.v = 0
-        self.changed = 1
+        self.changed = 1 
+        self.pause = 0 # 0 for running mode and 1 for pause mode
         self.update_screen()
 
     def update_screen(self):
@@ -35,6 +39,11 @@ class Snake():
 
         for i in range(self.length):
             s[self.ys[i]][self.xs[i]] = self.snake_color
+
+        # For cycle to print pause figure --> can be a source of error cause I dont know how for cycles work on Python :)
+        if self.pause == 1:    
+            for i in range(len(self.pausexs)):
+                s[self.pauseys[i]][self.pausexs[i]] = self.pause_color
 
         screen = b''
         for i in range(HEIGHT):
@@ -93,6 +102,18 @@ class Snake():
                 if btn == 'Select':
                     break
 
+                if btn == 'Start':
+                    if self.pause == 0:
+                        self.pause = 1 #pause
+                        self.update_screen() 
+                        # time.sleep(1/(3 + self.length/4)) unecessary???
+                        continue
+                    else:
+                        self.pause = 0; # not on pause anymore
+
+                if self.pause == 1:
+                    continue
+
                 if self.changed == 0:
                     if btn == 'Up' and self.v != 0:
                         self.v = 2
@@ -108,6 +129,7 @@ class Snake():
             self.moveSnake()
             self.changed = 0
             if self.checkCollisionWalls() or self.checkSelfCollision():
+                # Add sad face or GG letters
                 break
 
             self.update_screen()
