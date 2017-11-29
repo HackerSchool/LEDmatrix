@@ -244,7 +244,7 @@ class Tetris:
         self.table[12][9] = (255, 0, 0)
 
 
-        inv_mask = '{:010b}'.format(self.score)
+        inv_mask = f'{self.score:010b}'
         for i, bit in enumerate(inv_mask):
             if bit == '1':
                 self.table[19][i] = (0x00, 0xFF, 0x00)

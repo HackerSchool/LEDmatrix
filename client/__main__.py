@@ -26,7 +26,7 @@ DEFAULT_APP = 'menu'
 
 def main(app, input_module):
     # e.g. if input_module == 'controller', we exec:
-    # 'from client.apps.controller import Controller as Input'
+    # 'from client.input.controller import Controller as Input'
     # and then instantiate the class Controller (in another thread),
     # with one argument (input_queue)
     exec('from client.input.{0} import {1} as Input'.format(input_module,
