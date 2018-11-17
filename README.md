@@ -1,6 +1,10 @@
 # LEDmatrix
 
-A 20 * 10 Pixel LED Matrix
+A 20 * 10 Pixel LED Matrix, using WS2811 LEDs, an Arduino Nano as driver and an Orange Pi Zero as control.
+
+
+![](ledmatrix2.jpg)
+
 
 Run the server:
 	`python3 server/driver.py`
